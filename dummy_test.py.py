@@ -2,7 +2,7 @@ import multiprocessing
 import random
 import time
 
-from logger import  get_logger
+from logger import get_logger
 from config import LoggingConfig
 from context import (
     set_correlation_id,
@@ -25,7 +25,7 @@ def worker(worker_id, queue):
     for i in range(5):
         job_id = f"job-{worker_id}-{i}"
 
-        set_correlation_id()
+        set_correlation_id("w1")
         set_job_id(job_id)
 
         logger.info(f"Starting job iteration {i}")
@@ -51,13 +51,16 @@ if __name__ == "__main__":
 
     config = LoggingConfig(project="dummy-service", environment="dev", log_dir="./logs")
 
+    elastic_config = None
+    elastic_config = {"hosts": ["http://localhost:9200"]}
+
     log_queue = create_log_queue()
-    listener = start_listener(log_queue, config)
+    listener = start_listener(log_queue, config, elastic_config)
 
     configure_worker_logger(log_queue)
     main_logger = get_logger("main")
 
-    main_logger.info("Starting multiprocessing logging test")
+    main_logger.info("Starting multiprocessing logging test with Elasticsearch")
 
     processes = []
 
@@ -69,9 +72,6 @@ if __name__ == "__main__":
     for p in processes:
         p.join()
 
-    main_logger.info("All workers completed")
-
     listener.stop()
 
-    print("\n✔ Dummy multiprocessing test complete.")
-    print("✔ Check ./logs/dummy-service-dev.log\n")
+    print("✔ Dummy multiprocessing test complete.")

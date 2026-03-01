@@ -7,7 +7,7 @@ class JSONFormatter(logging.Formatter):
 
     def format(self, record):
         log_record = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now().isoformat(),
             "level": record.levelname,
             "message": record.getMessage(),
             "module": record.module,
